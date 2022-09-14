@@ -190,9 +190,6 @@
     <Compile Include="SmallType.cs">
       <DependentUpon>iSpanProject.tt</DependentUpon>
     </Compile>
-    <Compile Include="sysdiagram.cs">
-      <DependentUpon>iSpanProject.tt</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="GetShopee.resx">
       <DependentUpon>GetShopee.cs</DependentUpon>
     </EmbeddedResource>
@@ -227,19 +224,22 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="images\" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="iSpanProject.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>iSpanProject.Context.cs</LastGenOutput>
       <DependentUpon>iSpanProject.edmx</DependentUpon>
+      <LastGenOutput>iSpanProject.Context.cs</LastGenOutput>
     </Content>
     <Content Include="iSpanProject.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>iSpanProject.edmx</DependentUpon>
       <LastGenOutput>iSpanProject.cs</LastGenOutput>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
