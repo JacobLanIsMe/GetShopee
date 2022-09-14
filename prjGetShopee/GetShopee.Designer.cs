@@ -35,14 +35,19 @@ namespace prjGetShopee
             this.label2 = new System.Windows.Forms.Label();
             this.btnTest = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnClearDB = new System.Windows.Forms.Button();
+            this.btnAddMember = new System.Windows.Forms.Button();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnGetProduct
             // 
             this.btnGetProduct.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.btnGetProduct.Location = new System.Drawing.Point(12, 365);
+            this.btnGetProduct.Location = new System.Drawing.Point(6, 182);
+            this.btnGetProduct.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.btnGetProduct.Name = "btnGetProduct";
-            this.btnGetProduct.Size = new System.Drawing.Size(230, 97);
+            this.btnGetProduct.Size = new System.Drawing.Size(106, 48);
             this.btnGetProduct.TabIndex = 0;
             this.btnGetProduct.Text = "取得商品資訊";
             this.btnGetProduct.UseVisualStyleBackColor = true;
@@ -52,36 +57,40 @@ namespace prjGetShopee
             // 
             this.listBox1.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 40;
-            this.listBox1.Location = new System.Drawing.Point(266, 57);
+            this.listBox1.ItemHeight = 20;
+            this.listBox1.Location = new System.Drawing.Point(123, 28);
+            this.listBox1.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(1002, 604);
+            this.listBox1.Size = new System.Drawing.Size(465, 304);
             this.listBox1.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(163, 134);
+            this.label1.Location = new System.Drawing.Point(75, 67);
+            this.label1.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(64, 24);
+            this.label1.Size = new System.Drawing.Size(33, 12);
             this.label1.TabIndex = 2;
             this.label1.Text = "label1";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(155, 57);
+            this.label2.Location = new System.Drawing.Point(72, 28);
+            this.label2.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(64, 24);
+            this.label2.Size = new System.Drawing.Size(33, 12);
             this.label2.TabIndex = 3;
             this.label2.Text = "label2";
             // 
             // btnTest
             // 
             this.btnTest.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.btnTest.Location = new System.Drawing.Point(12, 550);
+            this.btnTest.Location = new System.Drawing.Point(6, 254);
+            this.btnTest.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(230, 97);
+            this.btnTest.Size = new System.Drawing.Size(106, 48);
             this.btnTest.TabIndex = 4;
             this.btnTest.Text = "測試";
             this.btnTest.UseVisualStyleBackColor = true;
@@ -89,24 +98,65 @@ namespace prjGetShopee
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(1291, 57);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(596, 28);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(478, 604);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(221, 302);
             this.flowLayoutPanel1.TabIndex = 5;
+            // 
+            // btnClearDB
+            // 
+            this.btnClearDB.BackColor = System.Drawing.Color.Red;
+            this.btnClearDB.Font = new System.Drawing.Font("微軟正黑體", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.btnClearDB.ForeColor = System.Drawing.Color.White;
+            this.btnClearDB.Location = new System.Drawing.Point(6, 434);
+            this.btnClearDB.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
+            this.btnClearDB.Name = "btnClearDB";
+            this.btnClearDB.Size = new System.Drawing.Size(78, 34);
+            this.btnClearDB.TabIndex = 6;
+            this.btnClearDB.Text = "清除資料庫";
+            this.btnClearDB.UseVisualStyleBackColor = false;
+            this.btnClearDB.Click += new System.EventHandler(this.btnClearDB_Click);
+            // 
+            // btnAddMember
+            // 
+            this.btnAddMember.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.btnAddMember.Location = new System.Drawing.Point(6, 337);
+            this.btnAddMember.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
+            this.btnAddMember.Name = "btnAddMember";
+            this.btnAddMember.Size = new System.Drawing.Size(106, 48);
+            this.btnAddMember.TabIndex = 7;
+            this.btnAddMember.Text = "新增會員";
+            this.btnAddMember.UseVisualStyleBackColor = true;
+            this.btnAddMember.Click += new System.EventHandler(this.btnAddMember_Click);
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(123, 364);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowTemplate.Height = 24;
+            this.dataGridView1.Size = new System.Drawing.Size(694, 265);
+            this.dataGridView1.TabIndex = 8;
             // 
             // GetShopee
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1816, 986);
+            this.ClientSize = new System.Drawing.Size(1151, 735);
+            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.btnAddMember);
+            this.Controls.Add(this.btnClearDB);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.btnTest);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.btnGetProduct);
+            this.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.Name = "GetShopee";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -120,6 +170,9 @@ namespace prjGetShopee
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.Button btnClearDB;
+        private System.Windows.Forms.Button btnAddMember;
+        private System.Windows.Forms.DataGridView dataGridView1;
     }
 }
 
