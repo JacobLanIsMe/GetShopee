@@ -190,6 +190,9 @@
     <Compile Include="SmallType.cs">
       <DependentUpon>iSpanProject.tt</DependentUpon>
     </Compile>
+    <Compile Include="sysdiagram.cs">
+      <DependentUpon>iSpanProject.tt</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="GetShopee.resx">
       <DependentUpon>GetShopee.cs</DependentUpon>
     </EmbeddedResource>

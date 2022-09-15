@@ -22,6 +22,7 @@ namespace prjGetShopee
     
         public int ProductID { get; set; }
         public int MemberID { get; set; }
+        public int Parent { get; set; }
         public string Comment1 { get; set; }
         public byte Star { get; set; }
         public int CommentID { get; set; }

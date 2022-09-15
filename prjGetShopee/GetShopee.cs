@@ -2,8 +2,10 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -23,7 +25,7 @@ namespace prjGetShopee
         {
             InitializeComponent();
         }
-        iSpanProjectEntities1 dbContext = new iSpanProjectEntities1();
+        iSpanProjectEntities2 dbContext = new iSpanProjectEntities2();
         List<string> bigTypeUrl = new List<string>();
         Random random = new Random();
         private async void btnGetProduct_Click(object sender, EventArgs e)
@@ -76,8 +78,15 @@ namespace prjGetShopee
                     int smallTypeID = dbContext.SmallTypes.Where(a => a.SmallTypeName == smalltypename && a.BigTypeID == bigTypeID).Select(a => a.SmallTypeID).FirstOrDefault();
                     listBox1.Items.Add($"    {smalltypename}");
                     driver.Navigate().GoToUrl(smallTypeUrl[j]);
-                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-                    driver.FindElement(By.CssSelector("div.shopee-sort-by-options>div:nth-child(2)")).Click();
+                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
+                    //IWebElement btnLatest = driver.FindElement(By.CssSelector("div.shopee-sort-by-options>div:nth-child(2)"));
+                    //for (int k = 0; k < 10; k++)
+                    //{
+                    //    if (btnLatest != null) break;
+                    //    driver.Navigate().Refresh();
+                    //    btnLatest = driver.FindElement(By.CssSelector("div.shopee-sort-by-options>div:nth-child(2)"));
+                    //}
+                    //btnLatest.Click();
                     var moveToEle = driver.FindElement(By.XPath("//*[@id='main']/div/div[2]/div/div/div[3]/div[2]/div/div[3]/div"));
                     Actions action = new Actions(driver);
                     action.MoveToElement(moveToEle).Build().Perform();
@@ -92,17 +101,41 @@ namespace prjGetShopee
                     for (int p = 0; p < productCount; p++)
                     {
                         driver.Navigate().GoToUrl(productUrls[p]);
-                        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-                        string productName = driver.FindElement(By.CssSelector("._2rQP1z>span")).Text;
+                        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
+                        string productName = "";
+                        try
+                        {
+                            productName = driver.FindElement(By.CssSelector("._2rQP1z>span")).Text;
+                        }
+                        catch
+                        {
+                            if (productName == "")
+                                continue;
+                        }
+                        //for (int k = 0; k < 10; k++)
+                        //{
+                        //    if (productname != null) break;
+                        //    driver.Navigate().Refresh();
+                        //    productname = driver.FindElement(By.CssSelector("._2rQP1z>span"));
+                        //}
+                        //if (productname == null) continue;
+                        //string productName = productname.Text;
                         int memberID = random.Next(0, memberIDs.Count);
                         memberID = memberIDs[memberID];
                         int regionID = dbContext.MemberAccounts.Where(a => a.MemberID == memberID).Select(a => a.RegionID).FirstOrDefault();
-                        var descriptions = driver.FindElements(By.CssSelector("p._2jrvqA"));
+                        ReadOnlyCollection<IWebElement> descriptions = driver.FindElements(By.CssSelector("p._2jrvqA"));
+                        for (int k= 0; k < 10; k++)
+                        {
+                            if (descriptions.Count > 0) break;
+                            driver.Navigate().Refresh();
+                            descriptions = driver.FindElements(By.CssSelector("p._2jrvqA"));
+                        }
                         string description = "";
                         foreach (var d in descriptions)
                         {
                             description += d.Text;
                         }
+                        if (description == "") description = "沒有商品敘述";
                         label1.Text = description;
                         Product product = new Product
                         {
@@ -115,73 +148,91 @@ namespace prjGetShopee
                             ProductStatusID = 0
                         };
                         dbContext.Products.Add(product);
-                        try
-                        {
-                            dbContext.SaveChanges();
-                        }
-                        catch(Exception ex)
-                        {
-                            continue;
-                        }
+                        dbContext.SaveChanges();
+                        
                         int productID = dbContext.Products.Where(a => a.ProductName == productName && a.MemberID == memberID && a.SmallTypeID == smallTypeID).Select(a => a.ProductID).FirstOrDefault();
                         listBox1.Items.Add($"        {productName}");
-                        var variations = driver.FindElements(By.CssSelector("button.product-variation"));
-                        if (variations.Count > 0)
-                        {
-                            foreach (var k in variations)
-                            {
-                                if (Convert.ToBoolean(k.GetAttribute("aria-disabled"))) continue;
-                                try
-                                {
-                                    //Actions actions = new Actions(driver);
-                                    //actions.MoveToElement(k).Click().Build().Perform();
-                                    k.Click();
-                                    Thread.Sleep(350);
-                                    string photoUrl = driver.FindElement(By.CssSelector("div._1OPdfl>div")).GetAttribute("style").Split('"')[1];
-                                    string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
-                                    string style = k.Text;
-                                    int quantity = random.Next(1, 1000);
-                                    HttpClient client = new HttpClient();
-                                    byte[] photo = await client.GetByteArrayAsync(photoUrl);
 
-                                    ProductDetail productDetail = new ProductDetail
-                                    {
-                                        ProductID = productID,
-                                        Style = style,
-                                        Quantity = quantity,
-                                        UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "")),
-                                        Pic = photo
-                                    };
-                                    dbContext.ProductDetails.Add(productDetail);
-                                    dbContext.SaveChanges();
-                                }
-                                catch (Exception ex)
+                        ReadOnlyCollection<IWebElement> photos = driver.FindElements(By.CssSelector("div._1XC0Jt._2PWsS4")); ;
+                        for (int k = 0; k < 10; k++)
+                        {
+                            if (photos.Count > 0) break;
+                            driver.Navigate().Refresh();
+                            photos = driver.FindElements(By.CssSelector("div._1XC0Jt._2PWsS4"));
+                        }
+                        if (photos.Count == 0) continue;
+                        foreach (var k in photos)
+                        {
+                            try
+                            {
+                                string photoUrl = k.GetAttribute("style");
+                                photoUrl = photoUrl.Split('"')[1];
+                                HttpClient client = new HttpClient();
+                                byte[] photo = await client.GetByteArrayAsync(photoUrl);
+                                ProductPic productPic = new ProductPic
                                 {
-                                    continue;
-                                }
+                                    ProductID = productID,
+                                    picture = photo
+                                };
+                                dbContext.ProductPics.Add(productPic);
+                                dbContext.SaveChanges();
+                            }
+                            catch
+                            {
+                                continue;
                             }
                         }
-                        else
-                        {
-                            string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
-                            int quantity = random.Next(1, 1000);
-                            string photoUrl = driver.FindElement(By.CssSelector("div._1OPdfl>div")).GetAttribute("style").Split('"')[1];
-                            HttpClient client = new HttpClient();
-                            byte[] photo = await client.GetByteArrayAsync(photoUrl);
-                            ProductDetail productDetail = new ProductDetail
-                            {
-                                ProductID = productID,
-                                Style = "無特殊樣式",
-                                Quantity = quantity,
-                                UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "")),
-                                Pic = photo
-                            };
-                            dbContext.ProductDetails.Add(productDetail);
-                            dbContext.SaveChanges();
-                        }
-                        
 
-                        
+                        //try
+                        //{
+                        //    var variations = driver.FindElements(By.CssSelector("button.product-variation"));
+                        //    foreach (var k in variations)
+                        //    {
+                        //        //moveToEle = driver.FindElement(By.XPath($"//*[@id='main']/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div[3]/div/div[4]/div/div[3]/div/div[1]/div/button[{k}]"));
+                        //        if (Convert.ToBoolean(k.GetAttribute("aria-disabled"))) continue;
+                        //        //action.MoveToElement(k).Click().Build().Perform();
+                        //        k.Click();
+                        //        Thread.Sleep(350);
+                        //        string photoUrl = driver.FindElement(By.CssSelector("div._1OPdfl>div")).GetAttribute("style").Split('"')[1];
+                        //        string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                        //        string style = k.Text;
+                        //        int quantity = random.Next(1, 1000);
+                        //        HttpClient client = new HttpClient();
+                        //        byte[] photo = await client.GetByteArrayAsync(photoUrl);
+                        //        ProductDetail productDetail = new ProductDetail
+                        //        {
+                        //            ProductID = productID,
+                        //            Style = style,
+                        //            Quantity = quantity,
+                        //            UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "")),
+                        //            Pic = photo
+                        //        };
+                        //        dbContext.ProductDetails.Add(productDetail);
+                        //        dbContext.SaveChanges();
+
+                        //    }
+                        //}
+                        //catch(Exception ex)
+                        //{
+                        //    string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                        //    int quantity = random.Next(1, 1000);
+                        //    string photoUrl = driver.FindElement(By.CssSelector("div._1OPdfl>div")).GetAttribute("style").Split('"')[1];
+                        //    HttpClient client = new HttpClient();
+                        //    byte[] photo = await client.GetByteArrayAsync(photoUrl);
+                        //    ProductDetail productDetail = new ProductDetail
+                        //    {
+                        //        ProductID = productID,
+                        //        Style = "僅一種樣式",
+                        //        Quantity = quantity,
+                        //        UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "")),
+                        //        Pic = photo
+                        //    };
+                        //    dbContext.ProductDetails.Add(productDetail);
+                        //    dbContext.SaveChanges();
+                        //}
+
+
+
                     }
 
                 }
@@ -207,18 +258,25 @@ namespace prjGetShopee
         private void btnTest_ClickAsync(object sender, EventArgs e)
         {
             EdgeDriver driver = new EdgeDriver();
-            driver.Navigate().GoToUrl("https://shopee.tw/Panasonic-CF-SZ6-%E6%9D%BE%E4%B8%8B-%E6%97%A5%E6%9C%AC%E8%A3%BD-%E7%AD%86%E8%A8%98%E5%9E%8B%E9%9B%BB%E8%85%A6-%E8%B6%85%E8%BC%95-i.3111013.21836770153?sp_atk=80182044-e1c6-488b-b8c9-11539f66a7a6&xptdk=80182044-e1c6-488b-b8c9-11539f66a7a6");
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
-            bool boo = driver.FindElement(By.CssSelector("button.product-variation")).Displayed;
-            if (boo)
+            driver.Navigate().GoToUrl("https://shopee.tw/ASUS-UX305UA-%E6%98%9F%E8%80%80%E9%BB%91-%E4%BA%8C%E6%89%8B%E7%AD%86%E9%9B%BB-i7-%E5%85%AD%E4%BB%A3-i.220741985.15488274527?sp_atk=49b0c4c6-b190-4a2d-8029-d56c644f1a56&xptdk=49b0c4c6-b190-4a2d-8029-d56c644f1a56");
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            //driver.FindElement(By.CssSelector("div._1XC0Jt._2PWsS4")).Click();
+            ReadOnlyCollection<IWebElement> photos = driver.FindElements(By.CssSelector("div._1XC0Jt._2PWsS4")); ;
+            for (int i = 0; i < 10; i++)
             {
-                label1.Text = "a";
+                if (photos.Count > 0) break;
+                driver.Navigate().Refresh();
+                photos = driver.FindElements(By.CssSelector("div._1XC0Jt._2PWsS4"));
             }
-            else
+
+            foreach (var k in photos)
             {
-                label1.Text = "b";
+                string photoUrl = k.GetAttribute("style");
+                photoUrl = photoUrl.Split('"')[1];
+
+                listBox1.Items.Add(photoUrl);
             }
-        
+            listBox1.Items.Add("---------------");
         }
 
         private void btnClearDB_Click(object sender, EventArgs e)

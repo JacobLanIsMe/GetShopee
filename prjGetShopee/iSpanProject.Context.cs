@@ -13,10 +13,10 @@ namespace prjGetShopee
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class iSpanProjectEntities1 : DbContext
+    public partial class iSpanProjectEntities2 : DbContext
     {
-        public iSpanProjectEntities1()
-            : base("name=iSpanProjectEntities1")
+        public iSpanProjectEntities2()
+            : base("name=iSpanProjectEntities2")
         {
         }
     
@@ -54,5 +54,6 @@ namespace prjGetShopee
         public virtual DbSet<ShipperToProduct> ShipperToProducts { get; set; }
         public virtual DbSet<ShippingStatus> ShippingStatuses { get; set; }
         public virtual DbSet<SmallType> SmallTypes { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
     }
 }
