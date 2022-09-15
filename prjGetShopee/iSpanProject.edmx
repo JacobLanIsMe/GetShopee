@@ -51,7 +51,6 @@
           </Key>
           <Property Name="ProductID" Type="int" Nullable="false" />
           <Property Name="MemberID" Type="int" Nullable="false" />
-          <Property Name="Parent" Type="int" Nullable="false" />
           <Property Name="Comment" Type="nvarchar" MaxLength="500" Nullable="false" />
           <Property Name="Star" Type="tinyint" Nullable="false" />
           <Property Name="CommentID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
@@ -209,7 +208,7 @@
           </Key>
           <Property Name="ProductDetailID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProductID" Type="int" Nullable="false" />
-          <Property Name="Style" Type="nvarchar" MaxLength="10" Nullable="false" />
+          <Property Name="Style" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="UnitPrice" Type="money" Nullable="false" />
           <Property Name="Pic" Type="varbinary(max)" />
@@ -268,16 +267,6 @@
           <Property Name="SmallTypeName" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="BigTypeID" Type="int" Nullable="false" />
         </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="principal_id" Type="int" Nullable="false" />
-          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="version" Type="int" />
-          <Property Name="definition" Type="varbinary(max)" />
-        </EntityType>
         <Association Name="FK_ArguePic_Argument">
           <End Role="Argument" Type="Self.Argument" Multiplicity="1" />
           <End Role="ArguePic" Type="Self.ArguePic" Multiplicity="*" />
@@ -326,7 +315,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Comment_Product">
+        <Association Name="FK_Comment_SalesCourt">
           <End Role="Product" Type="Self.Product" Multiplicity="1" />
           <End Role="Comment" Type="Self.Comment" Multiplicity="*" />
           <ReferentialConstraint>
@@ -692,7 +681,6 @@
           <EntitySet Name="ShipperToProduct" EntityType="Self.ShipperToProduct" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ShippingStatuses" EntityType="Self.ShippingStatuses" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SmallType" EntityType="Self.SmallType" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_ArguePic_Argument" Association="Self.FK_ArguePic_Argument">
             <End Role="Argument" EntitySet="Argument" />
             <End Role="ArguePic" EntitySet="ArguePic" />
@@ -709,7 +697,7 @@
             <End Role="MemberAccount" EntitySet="MemberAccount" />
             <End Role="Comment" EntitySet="Comment" />
           </AssociationSet>
-          <AssociationSet Name="FK_Comment_Product" Association="Self.FK_Comment_Product">
+          <AssociationSet Name="FK_Comment_SalesCourt" Association="Self.FK_Comment_SalesCourt">
             <End Role="Product" EntitySet="Product" />
             <End Role="Comment" EntitySet="Comment" />
           </AssociationSet>
@@ -879,12 +867,11 @@
           </Key>
           <Property Name="ProductID" Type="Int32" Nullable="false" />
           <Property Name="MemberID" Type="Int32" Nullable="false" />
-          <Property Name="Parent" Type="Int32" Nullable="false" />
           <Property Name="Comment1" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Star" Type="Byte" Nullable="false" />
           <Property Name="CommentID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <NavigationProperty Name="MemberAccount" Relationship="Self.FK_Comment_MemberAccount" FromRole="Comment" ToRole="MemberAccount" />
-          <NavigationProperty Name="Product" Relationship="Self.FK_Comment_Product" FromRole="Comment" ToRole="Product" />
+          <NavigationProperty Name="Product" Relationship="Self.FK_Comment_SalesCourt" FromRole="Comment" ToRole="Product" />
           <NavigationProperty Name="CommentPics" Relationship="Self.FK_CommentPic_Comment" FromRole="Comment" ToRole="CommentPic" />
         </EntityType>
         <EntityType Name="CommentPic">
@@ -1065,7 +1052,7 @@
           <Property Name="AdFee" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="ProductStatusID" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Comments" Relationship="Self.FK_Comment_Product" FromRole="Product" ToRole="Comment" />
+          <NavigationProperty Name="Comments" Relationship="Self.FK_Comment_SalesCourt" FromRole="Product" ToRole="Comment" />
           <NavigationProperty Name="Likes" Relationship="Self.FK_Likes_Product" FromRole="Product" ToRole="Likes" />
           <NavigationProperty Name="MemberAccount" Relationship="Self.FK_SalesCourt_MemberAccount" FromRole="Product" ToRole="MemberAccount" />
           <NavigationProperty Name="ProductStatu" Relationship="Self.FK_Product_ProductStatus1" FromRole="Product" ToRole="ProductStatus" />
@@ -1081,7 +1068,7 @@
           </Key>
           <Property Name="ProductDetailID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ProductID" Type="Int32" Nullable="false" />
-          <Property Name="Style" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Style" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="UnitPrice" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
           <Property Name="Pic" Type="Binary" MaxLength="Max" FixedLength="false" />
@@ -1154,16 +1141,6 @@
           <NavigationProperty Name="BigType" Relationship="Self.FK_SmallType_BigType" FromRole="SmallType" ToRole="BigType" />
           <NavigationProperty Name="Products" Relationship="Self.FK_Product_SmallType" FromRole="SmallType" ToRole="Product" />
         </EntityType>
-        <EntityType Name="sysdiagram">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="principal_id" Type="Int32" Nullable="false" />
-          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="version" Type="Int32" />
-          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
-        </EntityType>
         <Association Name="FK_ArguePic_Argument">
           <End Role="Argument" Type="Self.Argument" Multiplicity="1" />
           <End Role="ArguePic" Type="Self.ArguePic" Multiplicity="*" />
@@ -1224,7 +1201,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Comment_Product">
+        <Association Name="FK_Comment_SalesCourt">
           <End Role="Product" Type="Self.Product" Multiplicity="1" />
           <End Role="Comment" Type="Self.Comment" Multiplicity="*" />
           <ReferentialConstraint>
@@ -1548,7 +1525,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="iSpanProjectEntities2" annotation:LazyLoadingEnabled="true">
+        <EntityContainer Name="iSpanProjectEntities5" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="ADs" EntityType="Self.AD" />
           <EntitySet Name="ArguePics" EntityType="Self.ArguePic" />
           <EntitySet Name="Arguments" EntityType="Self.Argument" />
@@ -1578,7 +1555,6 @@
           <EntitySet Name="ShipperToProducts" EntityType="Self.ShipperToProduct" />
           <EntitySet Name="ShippingStatuses" EntityType="Self.ShippingStatus" />
           <EntitySet Name="SmallTypes" EntityType="Self.SmallType" />
-          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
           <AssociationSet Name="FK_ArguePic_Argument" Association="Self.FK_ArguePic_Argument">
             <End Role="Argument" EntitySet="Arguments" />
             <End Role="ArguePic" EntitySet="ArguePics" />
@@ -1599,7 +1575,7 @@
             <End Role="MemberAccount" EntitySet="MemberAccounts" />
             <End Role="Comment" EntitySet="Comments" />
           </AssociationSet>
-          <AssociationSet Name="FK_Comment_Product" Association="Self.FK_Comment_Product">
+          <AssociationSet Name="FK_Comment_SalesCourt" Association="Self.FK_Comment_SalesCourt">
             <End Role="Product" EntitySet="Products" />
             <End Role="Comment" EntitySet="Comments" />
           </AssociationSet>
@@ -1713,7 +1689,7 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="iSpanProjectModelStoreContainer" CdmEntityContainer="iSpanProjectEntities2">
+        <EntityContainerMapping StorageEntityContainer="iSpanProjectModelStoreContainer" CdmEntityContainer="iSpanProjectEntities5">
           <EntitySetMapping Name="ADs">
             <EntityTypeMapping TypeName="iSpanProjectModel.AD">
               <MappingFragment StoreEntitySet="AD">
@@ -1764,7 +1740,6 @@
               <MappingFragment StoreEntitySet="Comment">
                 <ScalarProperty Name="ProductID" ColumnName="ProductID" />
                 <ScalarProperty Name="MemberID" ColumnName="MemberID" />
-                <ScalarProperty Name="Parent" ColumnName="Parent" />
                 <ScalarProperty Name="Comment1" ColumnName="Comment" />
                 <ScalarProperty Name="Star" ColumnName="Star" />
                 <ScalarProperty Name="CommentID" ColumnName="CommentID" />
@@ -2003,17 +1978,6 @@
                 <ScalarProperty Name="SmallTypeID" ColumnName="SmallTypeID" />
                 <ScalarProperty Name="SmallTypeName" ColumnName="SmallTypeName" />
                 <ScalarProperty Name="BigTypeID" ColumnName="BigTypeID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="iSpanProjectModel.sysdiagram">
-              <MappingFragment StoreEntitySet="sysdiagrams">
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
-                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="definition" ColumnName="definition" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

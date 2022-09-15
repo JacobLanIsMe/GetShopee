@@ -25,7 +25,7 @@ namespace prjGetShopee
         {
             InitializeComponent();
         }
-        iSpanProjectEntities2 dbContext = new iSpanProjectEntities2();
+        iSpanProjectEntities5 dbContext = new iSpanProjectEntities5();
         List<string> bigTypeUrl = new List<string>();
         Random random = new Random();
         private async void btnGetProduct_Click(object sender, EventArgs e)
@@ -101,7 +101,7 @@ namespace prjGetShopee
                     for (int p = 0; p < productCount; p++)
                     {
                         driver.Navigate().GoToUrl(productUrls[p]);
-                        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
+                        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
                         string productName = "";
                         try
                         {
@@ -182,59 +182,87 @@ namespace prjGetShopee
                                 continue;
                             }
                         }
-
-                        //try
-                        //{
-                        //    var variations = driver.FindElements(By.CssSelector("button.product-variation"));
-                        //    foreach (var k in variations)
-                        //    {
-                        //        //moveToEle = driver.FindElement(By.XPath($"//*[@id='main']/div/div[2]/div[1]/div/div[1]/div[2]/div[2]/div[3]/div/div[4]/div/div[3]/div/div[1]/div/button[{k}]"));
-                        //        if (Convert.ToBoolean(k.GetAttribute("aria-disabled"))) continue;
-                        //        //action.MoveToElement(k).Click().Build().Perform();
-                        //        k.Click();
-                        //        Thread.Sleep(350);
-                        //        string photoUrl = driver.FindElement(By.CssSelector("div._1OPdfl>div")).GetAttribute("style").Split('"')[1];
-                        //        string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
-                        //        string style = k.Text;
-                        //        int quantity = random.Next(1, 1000);
-                        //        HttpClient client = new HttpClient();
-                        //        byte[] photo = await client.GetByteArrayAsync(photoUrl);
-                        //        ProductDetail productDetail = new ProductDetail
-                        //        {
-                        //            ProductID = productID,
-                        //            Style = style,
-                        //            Quantity = quantity,
-                        //            UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "")),
-                        //            Pic = photo
-                        //        };
-                        //        dbContext.ProductDetails.Add(productDetail);
-                        //        dbContext.SaveChanges();
-
-                        //    }
-                        //}
-                        //catch(Exception ex)
-                        //{
-                        //    string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
-                        //    int quantity = random.Next(1, 1000);
-                        //    string photoUrl = driver.FindElement(By.CssSelector("div._1OPdfl>div")).GetAttribute("style").Split('"')[1];
-                        //    HttpClient client = new HttpClient();
-                        //    byte[] photo = await client.GetByteArrayAsync(photoUrl);
-                        //    ProductDetail productDetail = new ProductDetail
-                        //    {
-                        //        ProductID = productID,
-                        //        Style = "僅一種樣式",
-                        //        Quantity = quantity,
-                        //        UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "")),
-                        //        Pic = photo
-                        //    };
-                        //    dbContext.ProductDetails.Add(productDetail);
-                        //    dbContext.SaveChanges();
-                        //}
-
-
-
+                        
+                        
+                        string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text; ;
+                        string style = "";
+                        MemoryStream ms = new MemoryStream();
+                        Image image = Image.FromFile("../../images/ImageNotFound.jpg");
+                        image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        byte[] stylePhoto = ms.GetBuffer();
+                        ReadOnlyCollection<IWebElement> btnStyles = driver.FindElements(By.CssSelector("button.product-variation"));
+                        if (btnStyles.Count > 0)
+                        {
+                            for (int k = 0; k<btnStyles.Count;k++)
+                            {
+                                btnStyles[k].Click();
+                                Thread.Sleep(300);
+                                try
+                                {
+                                    style = btnStyles[k].Text;
+                                }
+                                catch
+                                {
+                                    style = $"樣式{k + 1}";
+                                }
+                                try
+                                {
+                                    string stylePhotoUrl = driver.FindElement(By.CssSelector("div._3uzKon._2PWsS4")).GetAttribute("style").Split('"')[1];
+                                    HttpClient client = new HttpClient();
+                                    stylePhoto = await client.GetByteArrayAsync(stylePhotoUrl);
+                                }
+                                catch
+                                {
+                                    stylePhoto = dbContext.ProductPics.Where(a => a.ProductID == productID).Select(a => a.picture).FirstOrDefault();
+                                }
+                                finally
+                                {
+                                    stylePhoto = ms.GetBuffer();
+                                }
+                                try
+                                {
+                                    price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                                }
+                                catch
+                                {
+                                    price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                                }
+                                int qty = random.Next(1, 1000);
+                                ProductDetail productDetail = new ProductDetail
+                                {
+                                    ProductID = productID,
+                                    Style = style,
+                                    Quantity = qty,
+                                    UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "").Replace(" ","").Replace("-","")),
+                                    Pic = stylePhoto
+                                };
+                                dbContext.ProductDetails.Add(productDetail);
+                                dbContext.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            int qty = random.Next(1, 1000);
+                            try
+                            {
+                                stylePhoto = dbContext.ProductPics.Where(a => a.ProductID == productID).Select(a => a.picture).FirstOrDefault();
+                            }
+                            catch
+                            {
+                                stylePhoto = ms.GetBuffer();
+                            }
+                            ProductDetail productDetail = new ProductDetail
+                            {
+                                ProductID = productID,
+                                Style = "樣式1",
+                                Quantity = qty,
+                                UnitPrice = Convert.ToDecimal(price.Replace("$", "").Replace(",", "").Replace(" ", "").Replace("-", "")),
+                                Pic = stylePhoto
+                            };
+                            dbContext.ProductDetails.Add(productDetail);
+                            dbContext.SaveChanges();
+                        }
                     }
-
                 }
             }
             driver.Quit();
@@ -255,28 +283,44 @@ namespace prjGetShopee
             }
             return productPhotos;
         }
-        private void btnTest_ClickAsync(object sender, EventArgs e)
+        private async void btnTest_ClickAsync(object sender, EventArgs e)
         {
             EdgeDriver driver = new EdgeDriver();
-            driver.Navigate().GoToUrl("https://shopee.tw/ASUS-UX305UA-%E6%98%9F%E8%80%80%E9%BB%91-%E4%BA%8C%E6%89%8B%E7%AD%86%E9%9B%BB-i7-%E5%85%AD%E4%BB%A3-i.220741985.15488274527?sp_atk=49b0c4c6-b190-4a2d-8029-d56c644f1a56&xptdk=49b0c4c6-b190-4a2d-8029-d56c644f1a56");
+            driver.Navigate().GoToUrl("https://shopee.tw/%E3%80%8A%E5%8F%B0%E7%81%A3%E7%8F%BE%E8%B2%A8%E8%B2%B75%E9%80%811%E3%80%8B%E9%88%95%E9%87%A6%E9%9B%BB%E6%B1%A0-AG13-LR44-%E6%B0%B4%E9%8A%80%E9%9B%BB%E6%B1%A0-LR44W-A76-357A-SR44-CX44-A675-i.4093582.5758686243?sp_atk=8515611f-8d2d-4fc9-8e37-08a860b1e224&xptdk=8515611f-8d2d-4fc9-8e37-08a860b1e224");
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            //driver.FindElement(By.CssSelector("div._1XC0Jt._2PWsS4")).Click();
-            ReadOnlyCollection<IWebElement> photos = driver.FindElements(By.CssSelector("div._1XC0Jt._2PWsS4")); ;
-            for (int i = 0; i < 10; i++)
+
+            ReadOnlyCollection<IWebElement> btnStyles = driver.FindElements(By.CssSelector("button.product-variation"));
+            for (int k = 0; k<10; k++)
             {
-                if (photos.Count > 0) break;
+                if (btnStyles.Count > 0) break;
                 driver.Navigate().Refresh();
-                photos = driver.FindElements(By.CssSelector("div._1XC0Jt._2PWsS4"));
+                btnStyles = driver.FindElements(By.CssSelector("button.product-variation"));
             }
-
-            foreach (var k in photos)
+            if (btnStyles.Count == 0)
             {
-                string photoUrl = k.GetAttribute("style");
-                photoUrl = photoUrl.Split('"')[1];
-
-                listBox1.Items.Add(photoUrl);
+                listBox1.Items.Add("僅一種樣式");
+                return;
             }
-            listBox1.Items.Add("---------------");
+            
+            for (int k = 0; k<btnStyles.Count;k++)
+            {
+                btnStyles[k].Click();
+                Thread.Sleep(300);
+                string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                string style = btnStyles[k].Text;
+                listBox1.Items.Add($"{style}");
+                listBox1.Items.Add($"    {price}");
+                string photoUrl = driver.FindElement(By.CssSelector("div._3uzKon._2PWsS4")).GetAttribute("style").Split('"')[1];
+                HttpClient client = new HttpClient();
+                byte[] stylePhoto = await client.GetByteArrayAsync(photoUrl);
+                MemoryStream ms = new MemoryStream(stylePhoto);
+                PictureBox pb = new PictureBox();
+                pb.SizeMode = PictureBoxSizeMode.StretchImage;
+                pb.Image = Image.FromStream(ms);
+                flowLayoutPanel1.Controls.Add(pb);
+            }
+            
+        
         }
 
         private void btnClearDB_Click(object sender, EventArgs e)
