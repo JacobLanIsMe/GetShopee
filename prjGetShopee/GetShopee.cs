@@ -183,8 +183,8 @@ namespace prjGetShopee
                             }
                         }
                         
-                        
-                        string price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text; ;
+                        //string originPrice = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                        string price = "";
                         string style = "";
                         MemoryStream ms = new MemoryStream();
                         Image image = Image.FromFile("../../images/ImageNotFound.jpg");
@@ -225,7 +225,7 @@ namespace prjGetShopee
                                 }
                                 catch
                                 {
-                                    price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                                    price = "9999999999";
                                 }
                                 int qty = random.Next(1, 1000);
                                 ProductDetail productDetail = new ProductDetail
@@ -250,6 +250,18 @@ namespace prjGetShopee
                             catch
                             {
                                 stylePhoto = ms.GetBuffer();
+                            }
+                            try
+                            {
+                                price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                            }
+                            catch
+                            {
+                                price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                            }
+                            finally
+                            {
+                                price = "9999999999";
                             }
                             ProductDetail productDetail = new ProductDetail
                             {
