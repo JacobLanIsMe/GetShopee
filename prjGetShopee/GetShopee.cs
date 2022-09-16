@@ -35,6 +35,7 @@ namespace prjGetShopee
             EdgeDriver driver = new EdgeDriver(edgeoptions);
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl("https://shopee.tw/all_categories");
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             var memberIDs = dbContext.MemberAccounts.Select(a => a.MemberID).ToList();
             var bigType = driver.FindElements(By.CssSelector(".category-grid"));
             foreach (var i in bigType)
@@ -48,36 +49,55 @@ namespace prjGetShopee
                 driver.Navigate().GoToUrl(i);
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
                 string bigTypeName = driver.FindElement(By.CssSelector("a.shopee-category-list__main-category__link")).Text;
-                BigType bigtype = new BigType
+                var IsBigTypeExist = dbContext.BigTypes.Where(a => a.BigTypeName == bigTypeName).Select(a => a).ToList();
+                if (IsBigTypeExist.Count == 0)
                 {
-                    BigTypeName = bigTypeName
-                };
-                dbContext.BigTypes.Add(bigtype);
-                dbContext.SaveChanges();
+                    BigType bigtype = new BigType
+                    {
+                        BigTypeName = bigTypeName
+                    };
+                    dbContext.BigTypes.Add(bigtype);
+                    dbContext.SaveChanges();
+                }
                 int bigTypeID = dbContext.BigTypes.Where(a => a.BigTypeName == bigTypeName).Select(a => a.BigTypeID).FirstOrDefault();
                 listBox1.Items.Add(bigTypeName);
-                List<string> smallTypeUrl = new List<string>();
-                List<string> smallTypeName = new List<string>();
+                List<string> smallTypeUrls = new List<string>();
+                List<string> smallTypeNames = new List<string>();
                 driver.FindElement(By.CssSelector("div.shopee-category-list__toggle-btn")).Click();
                 var smallType = driver.FindElements(By.CssSelector("a.shopee-category-list__sub-category"));
                 foreach (var j in smallType)
                 {
-                    smallTypeUrl.Add(j.GetAttribute("href"));
-                    smallTypeName.Add(j.Text);
-                }
-                for (int j = 0; j<smallTypeUrl.Count;j++)
-                {
-                    string smalltypename = smallTypeName[j];
-                    SmallType smalltype = new SmallType
+                    string smallTypeName = j.Text;
+                    var q = dbContext.SmallTypes.Where(a => a.SmallTypeName == smallTypeName && a.BigTypeID == bigTypeID).Select(a => a.SmallTypeID);
+                    int productCountInSmallType = 0;
+                    if (q.ToList().Count > 0)
                     {
-                        SmallTypeName = smalltypename,
-                        BigTypeID = bigTypeID
-                    };
-                    dbContext.SmallTypes.Add(smalltype);
-                    dbContext.SaveChanges();
+                        int smallID = q.FirstOrDefault();
+                        productCountInSmallType = dbContext.Products.Where(a => a.SmallTypeID == smallID).Select(a => a).ToList().Count;
+                    }
+                    if (q.ToList().Count == 0 || productCountInSmallType < 10)
+                    {
+                        smallTypeUrls.Add(j.GetAttribute("href"));
+                        smallTypeNames.Add(smallTypeName);
+                    }
+                }
+                for (int j = 0; j<smallTypeUrls.Count;j++)
+                {
+                    string smalltypename = smallTypeNames[j];
+                    var IsSmallTypeExist = dbContext.SmallTypes.Where(a => a.SmallTypeName == smalltypename && a.BigTypeID == bigTypeID).Select(a => a).ToList();
+                    if (IsSmallTypeExist.Count == 0)
+                    {
+                        SmallType smalltype = new SmallType
+                        {
+                            SmallTypeName = smalltypename,
+                            BigTypeID = bigTypeID
+                        };
+                        dbContext.SmallTypes.Add(smalltype);
+                        dbContext.SaveChanges();
+                    }
                     int smallTypeID = dbContext.SmallTypes.Where(a => a.SmallTypeName == smalltypename && a.BigTypeID == bigTypeID).Select(a => a.SmallTypeID).FirstOrDefault();
                     listBox1.Items.Add($"    {smalltypename}");
-                    driver.Navigate().GoToUrl(smallTypeUrl[j]);
+                    driver.Navigate().GoToUrl(smallTypeUrls[j]);
                     driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
                     //IWebElement btnLatest = driver.FindElement(By.CssSelector("div.shopee-sort-by-options>div:nth-child(2)"));
                     //for (int k = 0; k < 10; k++)
@@ -88,8 +108,11 @@ namespace prjGetShopee
                     //}
                     //btnLatest.Click();
                     var moveToEle = driver.FindElement(By.XPath("//*[@id='main']/div/div[2]/div/div/div[3]/div[2]/div/div[3]/div"));
-                    Actions action = new Actions(driver);
-                    action.MoveToElement(moveToEle).Build().Perform();
+                    if (moveToEle != null)
+                    {
+                        Actions action = new Actions(driver);
+                        action.MoveToElement(moveToEle).Build().Perform();
+                    }
                     var producturls = driver.FindElements(By.CssSelector(".shopee-search-item-result__item>a"));
                     List<string> productUrls = new List<string>();
                     foreach (var p in producturls)
@@ -101,7 +124,7 @@ namespace prjGetShopee
                     for (int p = 0; p < productCount; p++)
                     {
                         driver.Navigate().GoToUrl(productUrls[p]);
-                        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+                        driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
                         string productName = "";
                         try
                         {
@@ -195,7 +218,14 @@ namespace prjGetShopee
                         {
                             for (int k = 0; k<btnStyles.Count;k++)
                             {
-                                btnStyles[k].Click();
+                                try
+                                {
+                                    btnStyles[k].Click();
+                                }
+                                catch
+                                {
+                                    continue;
+                                }
                                 Thread.Sleep(300);
                                 try
                                 {
@@ -217,7 +247,8 @@ namespace prjGetShopee
                                 }
                                 finally
                                 {
-                                    stylePhoto = ms.GetBuffer();
+                                    if (stylePhoto.Length == 0)
+                                        stylePhoto = ms.GetBuffer();
                                 }
                                 try
                                 {
@@ -226,6 +257,13 @@ namespace prjGetShopee
                                 catch
                                 {
                                     price = "9999999999";
+                                }
+                                finally
+                                {
+                                    if (price == "")
+                                    {
+                                        price = "9999999999";
+                                    }
                                 }
                                 int qty = random.Next(1, 1000);
                                 ProductDetail productDetail = new ProductDetail
@@ -249,7 +287,8 @@ namespace prjGetShopee
                             }
                             catch
                             {
-                                stylePhoto = ms.GetBuffer();
+                                if (stylePhoto.Length == 0)
+                                    stylePhoto = ms.GetBuffer();
                             }
                             try
                             {
@@ -257,11 +296,14 @@ namespace prjGetShopee
                             }
                             catch
                             {
-                                price = driver.FindElement(By.CssSelector("div._2Shl1j")).Text;
+                                price = "9999999999";
                             }
                             finally
                             {
-                                price = "9999999999";
+                                if (price == "")
+                                {
+                                    price = "9999999999";
+                                }
                             }
                             ProductDetail productDetail = new ProductDetail
                             {

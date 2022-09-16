@@ -108,6 +108,7 @@ namespace prjGetShopee
             // btnClearDB
             // 
             this.btnClearDB.BackColor = System.Drawing.Color.Red;
+            this.btnClearDB.Enabled = false;
             this.btnClearDB.Font = new System.Drawing.Font("微軟正黑體", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.btnClearDB.ForeColor = System.Drawing.Color.White;
             this.btnClearDB.Location = new System.Drawing.Point(6, 434);
